@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.test.core.dao.CustomerDao">
+	<resultMap type="customer" id="custMap">
+		<id property="cid" column="cid"/>
+		<result column="cust_name" property="cust_name"/>
+		<result property="cust_type" column="cust_type"/>
+		<result column="cust_phone" property="cust_phone"/>
+		<result column="cust_address" property="cust_address"/>
+		<association property="user" javaType="com.test.core.pojo.User">
+			<id property="uid" column="uid"/>
+			<result column="username" property="username"/>
+			<result column="nickname" property="nickname"/>
+			<result column="password" property="password"/>
+			<result column="checkCode" property="checkCode"/>
+			<result column="phoneCheckCode" property="phoneCheckCode"/>
+		</association>
+	</resultMap>
+	<select id="getCustomerList" resultMap="custMap">
+		SELECT c.*,u.username FROM s_cust c LEFT JOIN s_user u ON c.cust_link_user=u.uid
+	</select>
+	
+	<select id="getCustQuery" parameterType="customer" resultType="customer">
+		SELECT * FROM s_cust
+		<where>
+			<if test="cust_name != null and cust_name != ''">
+				and cust_name LIKE CONCAT('%',#{cust_name},'%')
+			</if>
+			<if test="cust_type != null and cust_type != ''">
+				AND cust_type LIKE CONCAT('%',#{cust_type},'%')
+			</if>
+		</where>
+	</select>
+	
+	<insert id="addCustomer" parameterType="customer">
+		insert into s_cust (cust_name,cust_type,cust_phone,cust_address,cust_link_user)
+		 values(#{cust_name},#{cust_type},#{cust_phone},#{cust_address},#{user.uid});
+	</insert>
+	
+	<delete id="deleteCustomer" parameterType="int">
+		delete from s_cust where cid=#{cid}
+	</delete>
+</mapper>
